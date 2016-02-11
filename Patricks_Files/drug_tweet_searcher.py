@@ -14,7 +14,7 @@ keys.union(tags)
 flagged_users = set()
 
 count = 0
-file = open("Flagged_Drug_Tweets.txt","w")
+file = open("Flagged_Drug_Tweets1.txt","w")
 line = tweets_file.readline()
 while line != "":
 	try:
@@ -45,7 +45,7 @@ print "Number of Flagged Tweets:"
 print count
 
 count = 0
-file = open("Flagged_Drug_Users.txt","w")
+file = open("Flagged_Drug_Users1.txt","w")
 for users in flagged_users:
 	file.write(str(users))
 	file.write("\n")
