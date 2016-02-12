@@ -3,8 +3,8 @@ import json
 import pickle
 
 
-flagged_users_file = file("Hand_Flagged_Users.txt")
-graph_data = file ("07-2015_social_graph.json")
+flagged_users_file = open("Hand_Flagged_Users.txt")
+graph_data = open("07-2015_social_graph.json")
 
 flagged_users = set()
 reciprocal_users = set()
@@ -90,30 +90,6 @@ print count1
 print "Number of Flagged Users in the Graph File with Connections"
 print len(connected_users)
 
-# graph_data.seek(0)
-# count = 0
-# file = open("Reciprocal_Oxy_Users.txt",'w')
-# while True:
-#     line = graph_data.readline()
-#     if line == "":
-#         break
-#     try:
-#         j = json.loads(line)
-#         if int(j["user_id"]) in flagged_users:
-#             mutual = set(j["follower_ids"]).intersection(set(j["friend_ids"]))
-#             temp = mutual.intersection(flagged_users)
-#             for newbs in temp:
-#                 if int(newbs) and int(j["user_id"]) not in reciprocal_users:
-#                     reciprocal_users.add(int(newbs))
-#                     reciprocal_users.add(int(newbs))
-#                     file.write(str(j["user_id"]))
-#                     file.write(str(" "))
-#                     file.write(str(newbs))
-#                     file.write("\n")
-#                     count = count + 1
-#     except ValueError:
-#         pass
-# file.close()        
 
 print "Number of Reciprocal Oxy User-Pairs"
 print count2
@@ -155,20 +131,6 @@ while True:
                 break
             try:    
                 j = json.loads(peep)
-                #print pair
-
-                #temp = set(j["user_id"])
-                #temp = [int(x) for x in temp]
-
-                #print set(int(j["user_id"]))
-                #overlap = pair.intersection(set(int(j["user_id"])))
-
-                #overlap = pair.intersection(temp)
-                #print pair
-                #print temp
-                #print overlap
-                #for people in overlap:
-                #print j["user_id"]
                 if int(j["user_id"]) in pair:
                     if num == 0:
                         a = set(j["follower_ids"]).intersection(set(j["friend_ids"]))
@@ -179,13 +141,8 @@ while True:
                         #print b
                         num = 0           
             except ValueError:
-                pass
-        #print a
-        #print b
         tris = a.intersection(b)
-        #print len(a)
-        #print len(b)
-        #print len(tris)
+
         if len(tris) > 0:
             count4 = count4 + 1
         for members in tris:
@@ -195,7 +152,7 @@ while True:
             file.write(str(members))
             file.write(str("\n"))
             count5 = count5 + 1
-            #triangles.add(int(members))
+    
             equalateral.write(str(members))
             equalateral.write(str("\n"))
     except ValueError:
@@ -213,8 +170,5 @@ print count5
 
 
 graph_data.seek(0)
-
-#print len(triangles)
-
 
 graph_data.close()
