@@ -26,18 +26,15 @@ def main():
 
     iterargs = iter(sys.argv)
     next(iterargs)
-    #command line arguement is a json tweet file
     for x in iterargs:
         tweets_file = open(x)
 
         line = tweets_file.readline()
         while line != "":
             try:
-                j = json.loads(line.lower())
-               
+                j = json.loads(line)
                 #if j["id"] not in oxy_tweets:
                 tweet = set(j["text"].encode('unicode-escape').replace('\\',' ').replace('#',' ').split())
-                print(tweet)
                 temp = keys.intersection(tweet)
                 if temp:
                     kill = killer.intersection(temp)

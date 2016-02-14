@@ -37,7 +37,7 @@ def main():
         line = tweets_file.readline()
         while line != "":
             try:
-                j = json.loads(line)
+                j = json.loads(line.lower())
                 #if j["id"] not in oxy_tweets:
                 tweet = set(j["text"].encode('unicode-escape').replace('\\',' ').replace('#',' ').split())
                 temp = keys.intersection(tweet)

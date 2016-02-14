@@ -175,4 +175,3 @@ class oxyConnections:
 		graph_data.seek(0)
 
 		graph_data.close()
-

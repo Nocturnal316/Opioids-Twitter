@@ -1,3 +1,8 @@
+# Filters tweets according to a list of words (word file: currently Oxycontin_Keywords.json)
+# example use on the cycle3 server:
+
+# nohup python -OO oxycontin_tweet_searcher_json.py /p/twitter4/rochester/*/*-*-*.json &> progress.txt &
+
 import json
 import codecs
 import sys
@@ -22,22 +27,19 @@ def main():
     flagged_users = set()
 
     count = 0
-    file = open("Flagged_Oxycontin_Tweets_Filtered.txt","w")
+    file = open("Flagged_Oxycontin_Tweets_Filtered.json","w")
 
     iterargs = iter(sys.argv)
     next(iterargs)
-    #command line arguement is a json tweet file
     for x in iterargs:
         tweets_file = open(x)
 
         line = tweets_file.readline()
         while line != "":
             try:
-                j = json.loads(line.lower())
-               
+                j = json.loads(line)
                 #if j["id"] not in oxy_tweets:
                 tweet = set(j["text"].encode('unicode-escape').replace('\\',' ').replace('#',' ').split())
-                print(tweet)
                 temp = keys.intersection(tweet)
                 if temp:
                     kill = killer.intersection(temp)
@@ -45,48 +47,22 @@ def main():
                     if kill:
                         p = pain.intersection(tweet)
                         if p:
-                            file.write(str(j["id"]))
-                            file.write(";")
-                            file.write(str(j["user"]["id_str"]))
-                            file.write(";")
-                            file.write(str(temp))
-                            file.write(";")
-                            file.write(str(j["created_at"])[5:25])
-                            file.write(";")
-                            file.write(str(j["text"].encode('unicode-escape')))
-                            file.write("\n")
+                            file.write(line)
+                            #file.write("\n")
                             #oxy_tweets.add(j["id"])
                             flagged_users.add(str(j["user"]["id_str"]))
                             count = count + 1
                     elif hillbill:
                         h = heroin.intersection(temp)
                         if h:
-                            file.write(str(j["id"]))
-                            file.write(";")
-                            file.write(str(j["user"]["id_str"]))
-                            file.write(";")
-                            file.write(str(temp))
-                            file.write(";")
-                            #file.write(str(j["created_at"])[5:25])
-                            file.write(str(j["created_at"]))
-                            file.write(";")
-                            file.write(str(j["text"].encode('unicode-escape')))
-                            file.write("\n")
+                            file.write(line)
+                            #file.write("\n")
                             #oxy_tweets.add(j["id"])
                             flagged_users.add(str(j["user"]["id_str"]))
                             count = count + 1
                     else:
-                        file.write(str(j["id"]))
-                        file.write(";")
-                        file.write(str(j["user"]["id_str"]))
-                        file.write(";")
-                        file.write(str(temp))
-                        file.write(";")
-#                        file.write(str(j["created_at"])[5:25])
-                        file.write(str(j["created_at"]))
-                        file.write(";")
-                        file.write(str(j["text"].encode('unicode-escape')))
-                        file.write("\n")
+                        file.write(line)
+                        #file.write("\n")
                         #oxy_tweets.add(j["id"])
                         flagged_users.add(str(j["user"]["id_str"]))
                         count = count + 1
