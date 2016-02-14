@@ -141,6 +141,7 @@ while True:
                         #print b
                         num = 0           
             except ValueError:
+                pass
         tris = a.intersection(b)
 
         if len(tris) > 0:
