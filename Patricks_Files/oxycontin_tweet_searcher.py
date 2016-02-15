@@ -17,8 +17,6 @@ def main():
     keys.union(killer)
     keys.union(hills)
 
-    #oxy_tweets = set()
-    #double_tweets = set()
     flagged_users = set()
 
     count = 0

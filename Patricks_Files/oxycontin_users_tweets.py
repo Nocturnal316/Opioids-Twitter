@@ -2,9 +2,9 @@ import json
 import codecs
 
 def main ():
-    #tweets_file = file("1year_filtered.json")
-    # flagged_users_file = file("Flagged_Oxycontin_Users.txt")
-    #flagged_users_file = file("Oxycontin_Yes_Histogram.txt")
+    #tweets_file = open("1year_filtered.json")
+    #flagged_users_file = open("Flagged_Oxycontin_Users.txt")
+    #flagged_users_file = open("Oxycontin_Yes_Histogram.txt")
     flagged_users_file = open("Hand_Flagged_Users.txt")
 
     triangle_users_file = open("Oxycontin_User_Triangle_Thirds.txt")
