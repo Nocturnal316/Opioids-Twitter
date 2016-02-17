@@ -8,7 +8,7 @@ import codecs
 import sys
 
 def main():
-    tweet_keyword_file = open("Oxycontin_Keywords.json")
+    tweet_keyword_file = open(".\JsonFiles\Oxycontin_Keywords.json",'r')
 
     k = json.load(tweet_keyword_file)
     tweet_keyword_file.close()
@@ -22,12 +22,10 @@ def main():
     keys.union(killer)
     keys.union(hills)
 
-    #oxy_tweets = set()
-    #double_tweets = set()
     flagged_users = set()
 
     count = 0
-    file = open("Flagged_Oxycontin_Tweets_Filtered.json","w")
+    file = open(".\TextFiles\Flagged_Oxycontin_Tweets_Filtered.json","w")
 
     iterargs = iter(sys.argv)
     next(iterargs)
@@ -79,7 +77,7 @@ def main():
     print count
 
     count = 0
-    file = open("Flagged_Oxycontin_Users.txt","w")
+    file = open(".\TextFiles\Flagged_Oxycontin_Users.txt","w")
     for users in flagged_users:
         file.write(str(users))
         file.write("\n")

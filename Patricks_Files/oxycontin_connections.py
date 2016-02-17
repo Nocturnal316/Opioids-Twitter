@@ -4,8 +4,8 @@ import pickle
 
 
 def oxyConnectionsRun():
-	flagged_users_file = open("Hand_Flagged_Users.txt")
-	graph_data = open("07-2015_social_graph.json")
+	flagged_users_file = open(".\TextFiles\Hand_Flagged_Users.txt",'r')
+	graph_data = open(".\JsonFiles/BigJson/07-2015_social_graph.json",'r')
 
 	flagged_users = set()
 	reciprocal_users = set()
@@ -28,9 +28,9 @@ def oxyConnectionsRun():
 	count2 = 0
 	count3 = 0
 	connected_users = set()
-	file = open("Oxycontin_Connections.txt",'w')
-	recips = open("Reciprocal_Oxy_Users.txt",'w')
-	pantry = open("Reciprocal_Oxy_Social_Graph.json",'w')
+	file = open(".\TextFiles\Oxycontin_Connections.txt",'w')
+	recips = open(".\TextFiles\Reciprocal_Oxy_Users.txt",'w')
+	pantry = open(".\JsonFiles\Reciprocal_Oxy_Social_Graph.json",'w')
 	holding = set()
 	while True:
 		line = graph_data.readline()
@@ -103,10 +103,10 @@ def oxyConnectionsRun():
 
 
 
-	recips = open("Reciprocal_Oxy_Users.txt",'r')
-	pantry = open("Reciprocal_Oxy_Social_Graph.json",'r')
-	file = open("Oxycontin_User_Social_Triangles.txt",'w')
-	equalateral = open("Oxycontin_User_Triangle_Thirds.txt",'w')
+	recips = open(".\TextFiles\Reciprocal_Oxy_Users.txt",'r')
+	pantry = open(".\JsonFiles\Reciprocal_Oxy_Social_Graph.json",'r')
+	file = open(".\TextFiles\Oxycontin_User_Social_Triangles.txt",'w')
+	equalateral = open(".\TextFiles\Oxycontin_User_Triangle_Thirds.txt",'w')
 	num = 0
 	a = set()
 	b = set()
