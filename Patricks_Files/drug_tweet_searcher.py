@@ -21,22 +21,22 @@ def searchDrugTweets():
 		line = tweets_file.readline()
 		while line != "":
 				try:
-						j = json.loads(line)
-						tweet = set(j["text"].encode('unicode-escape').replace('\\',' ').lower().split())
-						temp = keys.intersection(tweet)
-						if temp:
-								file.write(str(j["id"]))
-								file.write(";")
-								file.write(str(j["user"]["id_str"]))
-								file.write(";")
-								file.write(str(temp))
-								file.write(";")
-								file.write(str(j["created_at"])[5:25])
-								file.write(";")
-								file.write(str(j["text"].encode('unicode-escape')))
-								file.write("\n")
-								flagged_users.add(str(j["user"]["id_str"]))
-								count = count + 1	
+					j = json.loads(line)
+					tweet = set(j["text"].encode('unicode-escape').replace('\\',' ').lower().split())
+					temp = keys.intersection(tweet)
+					if temp:
+							file.write(str(j["id"]))
+							file.write(";")
+							file.write(str(j["user"]["id_str"]))
+							file.write(";")
+							file.write(str(temp))
+							file.write(";")
+							file.write(str(j["created_at"])[5:25])
+							file.write(";")
+							file.write(str(j["text"].encode('unicode-escape')))
+							file.write("\n")
+							flagged_users.add(str(j["user"]["id_str"]))
+							count = count + 1	
 				except ValueError:
 						pass
 						file.write("\n")
