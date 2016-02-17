@@ -6,9 +6,9 @@ def main ():
     #tweets_file = open("1year_filtered.json")
     #flagged_users_file = open("Flagged_Oxycontin_Users.txt")
     #flagged_users_file = open("Oxycontin_Yes_Histogram.txt")
-    flagged_users_file = open(".\TextFiles\Hand_Flagged_Users.txt",'r')
+    flagged_users_file = open("./TextFiles/Hand_Flagged_Users.txt",'r')
 
-    triangle_users_file = open(".\TextFiles\Oxycontin_User_Triangle_Thirds.txt",'r')
+    triangle_users_file = open("./TextFiles/Oxycontin_User_Triangle_Thirds.txt",'r')
 
     #oxy_tweets = set()
     flagged_users = set()
@@ -47,8 +47,8 @@ def main ():
         found_users = set()
         found_tris = set()
 
-        file = open(".\TextFiles\Flagged_Users_Tweets.txt","w")
-        tris = open(".\TextFiles\Triangle_Users_Tweets.txt",'w')
+        file = open("./TextFiles/Flagged_Users_Tweets.txt","w")
+        tris = open("./TextFiles/Triangle_Users_Tweets.txt",'w')
         line = tweets_file.readline()
         
         while line != "":
