@@ -5,7 +5,7 @@ import pickle
 class oxyConnections:
 	@staticmethod
 	def oxyConnectionsRun():
-		flagged_users_file = open("Hand_Flagged_Users.txt")
+		flagged_users_file = open("Patricks_Files/Hand_Flagged_Users.txt")
 		graph_data = open("07-2015_social_graph.json")
 
 		flagged_users = set()

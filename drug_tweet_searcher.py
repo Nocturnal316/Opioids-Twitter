@@ -4,8 +4,8 @@ import codecs
 class tweetSearch(object):
 	@staticmethod
 	def searchDrugTweets():
-		tweets_file = file("1year_filtered.json")
-		tweet_keyword_file = file("Drug_Keywords.json")
+		tweets_file = open("1year_filtered.json")
+		tweet_keyword_file = open("Patricks_Files/Drug_Keywords.json")
 
 		k = json.load(tweet_keyword_file)
 		tweet_keyword_file.close()
