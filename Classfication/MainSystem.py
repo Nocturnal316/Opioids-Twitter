@@ -8,6 +8,7 @@ Created on Tue Mar 15 22:15:23 2016
 
 import sys
 import json
+import unicodedata
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction import DictVectorizer
@@ -15,6 +16,13 @@ from sklearn.feature_extraction import DictVectorizer
 stopWords = stopwords.words('english') + ['RT','rt']
 featureDictionary =  "./Json/featueDict.txt"
 
+
+def read_words(file_name):
+    """
+    Returns a list of lines read from the given file.
+    """
+    with open(file_name, 'r') as f:
+        return f.readlines()
 
 def buildFeatureList(tweetFile):
    wordsRemovedStop = set()
@@ -40,6 +48,7 @@ def buildFeatureList(tweetFile):
 
 def buildFeatureObject(tweetFile):
     featureObjectFile = open("featureTweets.json",'a')
+    tupledTweets = []
     with open(tweetFile,'r') as tweets:
         lines = tweets.readlines()
         for tweet in lines:
@@ -55,19 +64,38 @@ def buildFeatureObject(tweetFile):
                     
                 data['text'] = newString.strip()
                 data['drug_relation'] = tweet_object['drug_relation']
+                tup = (str(tweet_object['drug_relation']),str(newString.strip))
+                tupledTweets.append(tup)
                 json_data = json.dumps(data)
                 #print json_data
                 featureObjectFile.write(json_data+'\n')
             except ValueError, e:
                 print e
     featureObjectFile.close()
+    return tupledTweets
 
-   
-   
+def createSparsMatrix(featureDict,tupledTweets):
+    features = read_words(featureDict)
+    #print features
+    tples = tupledTweets
+    m = len(tples)
+    tweets = []
+    
+    for i, line in enumerate(tples):
+        tweets.append(line[1])
+        
+    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 4),max_features=10000)
+    vectorizer.fit(features)
+    print vectorizer.get_feature_names()
+    xValues = vectorizer.transform(tweets)
+    print xValues
+
+
    
 def main():
-   buildFeatureObject("./Json/handJson.json")
-
+    #buildFeatureList("./Json/handJson.json")
+    tpleList =  buildFeatureObject("./Json/handJson.json")
+    createSparsMatrix(featureDictionary ,tpleList)    
 
 if __name__ == "__main__":
 	main() 
