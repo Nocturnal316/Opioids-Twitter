@@ -25,28 +25,37 @@ def read_words(file_name):
         return f.readlines()
 
 def buildFeatureList(tweetFile):
-   wordsRemovedStop = set()
-
-   with open(tweetFile,'r') as tweets:
-       lines = tweets.readlines()
-       for tweet in lines:
+    """
+        The file use to create the feature matrix
+        each line containns text only per tweet with some procosssing done.
+    """
+    #wordsRemovedStop = set()
+    with open(tweetFile,'r') as tweets, open(featureDictionary,'w') as writer:
+        lines = tweets.readlines()
+        for tweet in lines:
            try:
                tweet_object = json.loads(tweet.rstrip(),strict=False)
                msg = tweet_object['text']
                words = [i.strip('.,*;-:"\'`?!)(').lower() for i in msg.split() if i.strip('.,*;-:"\'`?!)(').lower() not in stopWords]
+               processesSentence = ""
                for w in words:
-                   wordsRemovedStop.add(w.rstrip())
+                   #wordsRemovedStop.add(w.rstrip())
+                   processesSentence +=" "+w.rstrip()
                
+               writer.write(processesSentence.encode('utf-8') + '\n')
            except ValueError, e:
                print e
                return 0
   
-   with open(featureDictionary,'w') as writer:
-       for word in wordsRemovedStop:
-           writer.write(word.encode('utf-8') + '\n')
+#   with open(featureDictionary,'w') as writer:
+#       for word in wordsRemovedStop:
+#           writer.write(word.encode('utf-8') + '\n')
 
 
 def buildFeatureObject(tweetFile):
+    """
+        format for keeping tweet and its Y values drug related or not
+    """
     featureObjectFile = open("featureTweets.json",'a')
     tupledTweets = []
     with open(tweetFile,'r') as tweets:
@@ -80,20 +89,23 @@ def createSparsMatrix(featureDict,tupledTweets):
     tples = tupledTweets
     m = len(tples)
     tweets = []
+    tweetsLabels  = []
     
     for i, line in enumerate(tples):
+        tweetsLabels.append(line[0])
         tweets.append(line[1])
         
-    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 4),max_features=10000)
+        
+    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 3),max_features=10000)
     vectorizer.fit(features)
     print vectorizer.get_feature_names()
     xValues = vectorizer.transform(tweets)
-    print xValues
+    #print xValues
 
 
    
 def main():
-    #buildFeatureList("./Json/handJson.json")
+    buildFeatureList("./Json/handJson.json")
     tpleList =  buildFeatureObject("./Json/handJson.json")
     createSparsMatrix(featureDictionary ,tpleList)    
 
