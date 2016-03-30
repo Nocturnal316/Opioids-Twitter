@@ -5,10 +5,11 @@ Created on Tue Mar 15 22:15:23 2016
 @author: Nocturnal
 """
 
-
+import pickle
 import sys
 import json
 import unicodedata
+import numpy as np
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction import DictVectorizer
@@ -69,11 +70,12 @@ def buildFeatureObject(tweetFile):
                 data = {}
                 newString = ""
                 for w in words:
+                    
                     newString += " "+w.encode('utf-8')
                     
                 data['text'] = newString.strip()
                 data['drug_relation'] = tweet_object['drug_relation']
-                tup = (str(tweet_object['drug_relation']),str(newString.strip))
+                tup = (str(tweet_object['drug_relation']),str(newString.strip()))
                 tupledTweets.append(tup)
                 json_data = json.dumps(data)
                 #print json_data
@@ -87,21 +89,23 @@ def createSparsMatrix(featureDict,tupledTweets):
     features = read_words(featureDict)
     #print features
     tples = tupledTweets
+   
     m = len(tples)
     tweets = []
-    tweetsLabels  = []
-    
+  
+    yValues = np.empty((m,))
     for i, line in enumerate(tples):
-        tweetsLabels.append(line[0])
+        yValues[i, ] = int(line[0] == 'true')
         tweets.append(line[1])
         
         
-    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 3),max_features=10000)
+    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1,3),max_features=10000)
     vectorizer.fit(features)
-    print vectorizer.get_feature_names()
+    #print vectorizer.get_feature_names()
     xValues = vectorizer.transform(tweets)
-    #print xValues
-
+    #print vectorizer.vocabulary_.get('high')
+    #print xValues.toarray()[1176]
+    return xValues, yValues, vectorizer
 
    
 def main():
