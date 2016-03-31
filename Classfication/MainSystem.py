@@ -104,13 +104,14 @@ def createSparsMatrix(featureDict,tupledTweets):
     #print vectorizer.get_feature_names()
     xValues = vectorizer.transform(tweets)
     #print vectorizer.vocabulary_.get('high')
-    #print xValues.toarray()[1176]
+    #print xValues.toarray()
     return xValues, yValues, vectorizer
 
    
 def main():
-    buildFeatureList("./Json/handJson.json")
-    tpleList =  buildFeatureObject("./Json/handJson.json")
+    File  = "./Json/handJson.json"
+    buildFeatureList(File)
+    tpleList =  buildFeatureObject(File)
     createSparsMatrix(featureDictionary ,tpleList)    
 
 if __name__ == "__main__":
