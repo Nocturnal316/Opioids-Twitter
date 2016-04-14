@@ -4,3 +4,8 @@
 BigJson/
 Classfication/Json/allTweets.json
 allTweets.json
+Classfication/featureTweets.json
+
+*.json
+
+*.json

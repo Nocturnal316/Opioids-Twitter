@@ -4,9 +4,9 @@ import sys
 
 
 def LabelTweets():
-    tweets_file = open('./Json/DrugLabeledTweets2.json','r')
-    labeledTweets_file = open('./Json/DrugLabeledTweets3.json','a')
-    unsure_tweets = open('./Json/UnsureTweets3.json','a')
+    tweets_file = open('./Json/Drug_Tweets4_7.json','r')
+    labeledTweets_file = open('./Json/DrugMoreData.json','a')
+    unsure_tweets = open('./Json/UnsureTweets33.json','a')
     currentLine = 0
     leftOff = int(raw_input("What line would you like to start at? "))
     line = ""
@@ -22,16 +22,16 @@ def LabelTweets():
 
         #currentTweet = json.dumps(json.loads(line))
         currentTweet = json.loads(line)
-        print currentTweet["text"]
+        print currentTweet["text"].encode('utf-8')
         isDrugRelated =""
         while(1):
             print ""
             isDrugRelated = raw_input('Is this tweet drug related? t or f  or quit to exit ')
             if(isDrugRelated.lower() == 't'):
-                drugRelated  = {'drug_relation':'true'}
+                drugRelated  = {'drug_relation':True}
                 break;
             elif(isDrugRelated.lower() == 'f'):
-                drugRelated  = {'drug_relation':'false'}
+                drugRelated  = {'drug_relation':False}
                 break;
             elif(isDrugRelated.lower() == '?'):
                 break;
