@@ -4,18 +4,22 @@ import sys
 
 
 def LabelTweets():
-    tweets_file = open('./Json/Drug_Tweets4_7.json','r')
+    #22-02-2015.json
+    #Drug_Tweets4_14.json
+    tweets_file = open('./Json/Drug_Tweets4_14.json','r')
     labeledTweets_file = open('./Json/DrugMoreData.json','a')
+    #labeledTweets_file = open('./Json/RochesterTweetData.json','a')
+    #labeledTweets_file = open('./Json/DetroitTweetData.json','a')
     unsure_tweets = open('./Json/UnsureTweets33.json','a')
     currentLine = 0
     leftOff = int(raw_input("What line would you like to start at? "))
     line = ""
-    line  = tweets_file.readline()
+    line = tweets_file.readline()
     while currentLine  < leftOff:
       line  = tweets_file.readline()
       currentLine+=1
-      print 'skipped'
-    print currentLine
+      #print 'skipped'
+    #print currentLine
 
     while line!= "":
         print ""
@@ -40,6 +44,9 @@ def LabelTweets():
                 tweets_file.close()
                 labeledTweets_file.close()
                 return;
+            elif(isDrugRelated.lower() == 'line'):
+                print currentLine
+                
         if(isDrugRelated.lower() == '?'):
             unsure_tweets.write(json.dumps(currentTweet)+"\n")
         else:
@@ -59,13 +66,25 @@ def LabelTweets():
  
 
 
-
-
-
-
-
-
+def countTrue(jsonFile):
+    labelDrugs = open(jsonFile,'r')
+    line = labelDrugs.readline()
+    counter = 0
+    currentLine = 0
+    while line != "":
+        
+        currentTweet = json.loads(line)
+     
+        
+        if(currentTweet['drug_relation'] == True):
+            counter += 1
+        line = labelDrugs.readline()
+        currentLine+=1
+    print counter
+    labelDrugs.close()
+     
 
 				
 if __name__ == "__main__":
-	LabelTweets()
+	#LabelTweets()
+        countTrue('./Json/DrugMoreData.json')
