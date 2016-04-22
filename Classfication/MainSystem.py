@@ -92,8 +92,25 @@ def buildFeatureObject(tweetFile):
     featureObjectFile.close()
     return tupledTweets
 
-def createSparsMatrix(featureDict,tupledTweets):
-    features = read_words(featureDict)
+
+def normalizeTup(tupledTweets,vectorizer):
+    #print features
+    tples = tupledTweets
+   
+    m = len(tples)
+    tweets = []
+  
+    yValues = np.empty((m,))
+    for i, line in enumerate(tples):
+        yValues[i, ] = int(line[0].lower() == 'true')
+        tweets.append(line[1])
+        
+    xValues = vectorizer.transform(tweets)
+    
+    return xValues, yValues
+    
+def createSparsMatrix(featureDict,tupledTweets, flag):
+ 
     #print features
     tples = tupledTweets
    
@@ -105,14 +122,21 @@ def createSparsMatrix(featureDict,tupledTweets):
         yValues[i, ] = int(line[0] == 'true')
         tweets.append(line[1])
         
-        
-    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1,3),max_features=10000)
-    vectorizer.fit(features)
+    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1,3),max_features=10000)   
+    if flag == 1:
+        features = read_words(featureDict)
+        vectorizer.fit(features)
+    else:
+        vectorizer.fit(featureDict)
+    
     #print vectorizer.get_feature_names()
     xValues = vectorizer.transform(tweets)
     #print vectorizer.vocabulary_.get('high')
     #print xValues.toarray()
     return xValues, yValues, vectorizer
+
+
+
 
 def train_classifier(X_train,Y_train,score):
     """
@@ -148,7 +172,7 @@ def print_cv_classification_report(classifier, X_test, Y_test):
     plt.figure()
     plot_confusion_matrix(cm,target_names)
     
-def analyze_classifier(classifier,xVals,yVals,X_test,Y_test,vectorizer):
+def analyze_classifier(classifier,xVals,yVals,X_test,Y_test):
     """
     Analyzes the classifier.
     Input:
@@ -169,28 +193,115 @@ def plot_confusion_matrix(cm, target_names,title='Confusion matrix', cmap=plt.cm
     plt.ylabel('Actual label')
     plt.xlabel('Predicted label')
     
+
+def predictSecond(xVals,yVals,classifier):
+    
+    print 'Classification report on training data with cross validation:'
+    y_true, y_pred = yVals, classifier.predict(xVals)
+
+    target_names = ['Not_Drug_Related', 'Drug_Related']
+    print classification_report(y_true, y_pred, target_names=target_names)
+    print
+    #cm = confusion_matrix(y_true, y_pred)
+    #print cm
+    #plt.figure()
+    #plot_confusion_matrix(cm,target_names)
+    
+    return xVals, y_pred
+    
+def  secondsetTrue(xValsTups,yVals,tupleList):
+     
+     
+     predictedTuples = []
+     
+     for i in range (len(yVals)):
+         if yVals[i] == 1:
+           
+             tup = ('true',xValsTups[i][1])
+             #print tup
+             predictedTuples.append(tup)
+     
+     numTrues = len(predictedTuples)
+     #print(numTrues)
+     wantedNos = (len(yVals) - numTrues)/2
+     #print(wantedNos)
+     count = 0;
+     for i in range(len(yVals)):
+        if(yVals[i] == 0):
+            count+=1
+            tup = ('false',xValsTups[i][1])
+            predictedTuples.append(tup)
+        if count >= wantedNos:
+            break;
+     
+     #print 'got here'
+     #print len(predictedTuples)
+     #print len(tupleList)
+     
+     combinedOldandNew = predictedTuples +tupleList
+     
+     features = []
+     for i in combinedOldandNew:
+         features.append(i[1])
+     
+    
+     #print len(combinedOldandNew)
+     return combinedOldandNew , features    
+     
+     
+    
     
 def main():
     File  = "./Json/handJson2.json"
+    secondDataSet  = './Json/finalData.json'
     buildFeatureList(File)
-    tpleList =  buildFeatureObject(File)
-    xVals, yVals, vectorizer = createSparsMatrix(featureDictionary ,tpleList)    
+    tupleList = buildFeatureObject(File)
+    #tupledTweetsSecond =  buildFeatureObject(secondDataSet)
+
+    #joblib.dump(tupledTweetsSecond, 'tupleSecondData.pkl')
     
-    joblib.dump(vectorizer, 'vectorizer.pkl')
+    tupledTweetsSecond = joblib.load('tupleSecondData.pkl')
     
-    X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(xVals, yVals, test_size=0.2, random_state=5)
+    xVals, yVals, vectorizer = createSparsMatrix(featureDictionary ,tupleList,1)    
     
+    #joblib.dump(vectorizer, 'vectorizer.pkl')
+    vectorizer = joblib.load('vectorizer.pkl')
+    
+    xVal2nd, yVals2nd = normalizeTup(tupledTweetsSecond,vectorizer)
+
+    
+    #X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(xVals, yVals, test_size=0.2, random_state=5)
+    
+    
+
     
     # scoring = 'roc_auc', 'precision'
     scoring = 'f1'
     
-    classifier = train_classifier(X_train,Y_train,scoring)
+    #classifier = train_classifier(X_train,Y_train,scoring)
     
     
     #joblib.dump(classifier, 'amt_1_' + scoring + '_SVC_.pkl')
     
-    analyze_classifier(classifier, xVals, yVals, X_test, Y_test, vectorizer)
+    classifier = joblib.load('amt_1_f1_SVC_.pkl')
+    
+    xvals, yvalsPred = predictSecond(xVal2nd,yVals2nd,classifier)
+    #analyze_classifier(classifier, xVals, yVals, X_test, Y_test)
+    
+    
+    finalTuple, features= secondsetTrue(tupledTweetsSecond,yvalsPred,tupleList)
+   
+    
+    allXs, allYs, secondVectorizer = createSparsMatrix(features,finalTuple,2)
 
+    X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(allXs, allYs, test_size=0.2, random_state=5)
+    
+    classifier_two = train_classifier(X_train,Y_train,scoring)
+    
+    joblib.dump(classifier, 'amt_2_' + scoring + '_SVC_.pkl')
+    
+    
+    analyze_classifier(classifier_two, xVals, yVals, X_test, Y_test)
     
 if __name__ == "__main__":
 	main() 

@@ -68,23 +68,36 @@ def LabelTweets():
 
 def countTrue(jsonFile):
     labelDrugs = open(jsonFile,'r')
+    finalSet = open('./Json/finalData.json',"a")
     line = labelDrugs.readline()
     counter = 0
     currentLine = 0
     while line != "":
-        
-        currentTweet = json.loads(line)
-     
-        
-        if(currentTweet['drug_relation'] == True):
-            counter += 1
+        try:
+            currentTweet = json.loads(line)
+        except ValueError:
+            print currentLine
+            print line
         line = labelDrugs.readline()
         currentLine+=1
     print counter
     labelDrugs.close()
+    finalSet.close()
      
 
+def mergeData():
+    #labeledTweets2_file = open('./Json/RochesterTweetData.json','r')
+    labeledTweets2_file = open('./Json/DetroitTweetData.json','r')
+    finalSet = open('./Json/finalData.json',"a")
+    line = labeledTweets2_file.readline()
+    while line != "":
+        finalSet.write(line)
+        line = labeledTweets2_file.readline()
+    labeledTweets2_file.close()
+    finalSet.close()
+    
 				
 if __name__ == "__main__":
 	#LabelTweets()
-        countTrue('./Json/DrugMoreData.json')
+        countTrue('./Json/finalData.json')
+        #mergeData()
