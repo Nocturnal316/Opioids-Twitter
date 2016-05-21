@@ -20,8 +20,9 @@ from sklearn.metrics import confusion_matrix
 from sklearn.grid_search import GridSearchCV
 from sklearn.externals import joblib
 from sklearn import cross_validation, svm
+from wordcloud import WordCloud
 
-stopWords = stopwords.words('english') + ['RT','rt']
+stopWords = stopwords.words('english') + ['RT','rt'] + ['https']
 featureDictionary =  "./Json/featueDict.txt"
 
 
@@ -39,6 +40,7 @@ def buildFeatureList(tweetFile):
     """
     #wordsRemovedStop = set()
     with open(tweetFile,'r') as tweets, open(featureDictionary,'w') as writer:
+        #for lines in tweets
         lines = tweets.readlines()
         for tweet in lines:
            try:
@@ -107,6 +109,7 @@ def normalizeTup(tupledTweets,vectorizer):
         
     xValues = vectorizer.transform(tweets)
     
+    
     return xValues, yValues
     
 def createSparsMatrix(featureDict,tupledTweets, flag):
@@ -172,7 +175,7 @@ def print_cv_classification_report(classifier, X_test, Y_test):
     plt.figure()
     plot_confusion_matrix(cm,target_names)
     
-def analyze_classifier(classifier,xVals,yVals,X_test,Y_test):
+def analyze_classifier(classifier,X_test,Y_test):
     """
     Analyzes the classifier.
     Input:
@@ -197,7 +200,9 @@ def plot_confusion_matrix(cm, target_names,title='Confusion matrix', cmap=plt.cm
 def predictSecond(xVals,yVals,classifier):
     
     print 'Classification report on training data with cross validation:'
-    y_true, y_pred = yVals, classifier.predict(xVals)
+    #break it up
+    y_true = yVals
+    y_pred =  classifier.predict(xVals)
 
     target_names = ['Not_Drug_Related', 'Drug_Related']
     print classification_report(y_true, y_pred, target_names=target_names)
@@ -211,7 +216,8 @@ def predictSecond(xVals,yVals,classifier):
     
 def  secondsetTrue(xValsTups,yVals,tupleList):
      
-     
+     #print(len(tupleList))
+     #print(len(xValsTups))
      predictedTuples = []
      
      for i in range (len(yVals)):
@@ -238,11 +244,13 @@ def  secondsetTrue(xValsTups,yVals,tupleList):
      #print len(predictedTuples)
      #print len(tupleList)
      
+     
      combinedOldandNew = predictedTuples +tupleList
      
      features = []
      for i in combinedOldandNew:
          features.append(i[1])
+     
      
     
      #print len(combinedOldandNew)
@@ -250,58 +258,202 @@ def  secondsetTrue(xValsTups,yVals,tupleList):
      
      
     
+def tupleDrugTweets(tweetFile):
+    tupledTweets = []
+    count = 0
+    with open(tweetFile,'r') as tweets:
+        lines = tweets.readlines()
+        for tweet in lines:
+            try:
+                if count < 100000:#200000:
+                    tweet_object = json.loads(tweet.rstrip(),strict=False)
+                    msg = tweet_object['text']
+                    
+                    try:
+                        words = [i.strip('.,*;-:"\'`?!)(').lower() for i in msg.split() if i.strip('.,*;-:"\'`?!)(').lower() not in stopWords]
+                        newString = ""
+                        for w in words:
+                            newString += " "+w.encode('utf-8')
+                      
+                        #all tweets will be false by default 
+                        #to many tweets to label this is for word cloud
+                        tup = ('true',str(newString.strip()))
+                        tupledTweets.append(tup)
+                        count += 1
+                        #print json_data
+                    except: 
+                        continue
+                
+            except ValueError, e:
+                print e
+    return tupledTweets    
     
-def main():
+
+    
+
+
+
+def trainClassifierA():
     File  = "./Json/handJson2.json"
-    secondDataSet  = './Json/finalData.json'
     buildFeatureList(File)
     tupleList = buildFeatureObject(File)
-    #tupledTweetsSecond =  buildFeatureObject(secondDataSet)
-
-    #joblib.dump(tupledTweetsSecond, 'tupleSecondData.pkl')
     
-    tupledTweetsSecond = joblib.load('tupleSecondData.pkl')
+    xVals, yVals, vectorizer = createSparsMatrix(featureDictionary ,tupleList,1) 
     
-    xVals, yVals, vectorizer = createSparsMatrix(featureDictionary ,tupleList,1)    
-    
+    #save vectorizer    
     #joblib.dump(vectorizer, 'vectorizer.pkl')
-    vectorizer = joblib.load('vectorizer.pkl')
     
-    xVal2nd, yVals2nd = normalizeTup(tupledTweetsSecond,vectorizer)
-
-    
-    #X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(xVals, yVals, test_size=0.2, random_state=5)
+    #Split data between test and training
+    X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(xVals, yVals, test_size=0.2, random_state=5)
     
     
-
     
     # scoring = 'roc_auc', 'precision'
     scoring = 'f1'
     
-    #classifier = train_classifier(X_train,Y_train,scoring)
+    classifier = train_classifier(X_train,Y_train,scoring)
     
     
+    #save classifier
     #joblib.dump(classifier, 'amt_1_' + scoring + '_SVC_.pkl')
     
+    #test Classifier A
+    xVals, yVals = predictSecond(X_test,Y_test,classifier)
+    
+    #analyze classfier A
+    analyze_classifier(classifier, X_test, Y_test)
+    
+    return classifier
+
+def trainClassifierB():
+    File  = "./Json/handJson2.json"
+    buildFeatureList(File)
+    tupleList = buildFeatureObject(File)
+    secondDataSet  = './Json/finalData.json'
+    
+    #tuple of tweets preocssed and drug relation boolean
+    tupledTweetsSecond =  buildFeatureObject(secondDataSet)
+    
+    
+    #joblib.dump(tupledTweetsSecond, 'tupleSecondData.pkl')
+    
+    #tupledTweetsSecond = joblib.load('tupleSecondData.pkl')
+
+    #load vectorizer of classifier A
+    vectorizer = joblib.load('vectorizer.pkl')
+    
+    #turn the tweets into xVals and Y Vals
+    xVal2nd, yVals2nd = normalizeTup(tupledTweetsSecond,vectorizer)
+
+    #load classifier A 
     classifier = joblib.load('amt_1_f1_SVC_.pkl')
     
+    #predict the labels of 2nd data set
     xvals, yvalsPred = predictSecond(xVal2nd,yVals2nd,classifier)
-    #analyze_classifier(classifier, xVals, yVals, X_test, Y_test)
+  
     
-    
+    #Take all the trues half of the falses predicted
+    #combine with all tweets of all data set 1.
     finalTuple, features= secondsetTrue(tupledTweetsSecond,yvalsPred,tupleList)
-   
-    
+       
+    #begin bootstrapping a new classifier
     allXs, allYs, secondVectorizer = createSparsMatrix(features,finalTuple,2)
 
+    #joblib.dump(secondVectorizer,'vectorizer_2.pkl')
+    
+
+    #split training and test
     X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(allXs, allYs, test_size=0.2, random_state=5)
     
+    scoring = 'f1'
+    #train new classifier
     classifier_two = train_classifier(X_train,Y_train,scoring)
     
-    joblib.dump(classifier, 'amt_2_' + scoring + '_SVC_.pkl')
+    #save classifier
+    joblib.dump(classifier_two, 'classifierB.pkl')
+    
+    #load classifier B
+    #classifier_two = joblib.load('amt_2_f1_SVC_.pkl')
+    
+    #anaylyze preformance
+    #analyze_classifier(classifier_two, X_test,Y_test)
+    #xvals, yvalsPred = predictSecond(X_test, Y_test,classifier_two)
+    
+    return classifier_two
     
     
-    analyze_classifier(classifier_two, xVals, yVals, X_test, Y_test)
+def generateWordCloud():
+    
+    drugTweetsFile = './Json/Drug_Tweets4_14.json'
+    
+    tupleDrugsJson = tupleDrugTweets(drugTweetsFile)
+    
+    print(len(tupleDrugsJson))
+    
+    #load Classifier B's Vectorizer 
+    vectorizer = joblib.load('vectorizer_2.pkl')
+    
+    xValues, yValues = normalizeTup(tupleDrugsJson,vectorizer)
+   
+    #load classiferB 
+    classifier = joblib.load('classifierB.pkl')
+    
+    wordList = []
+    
+    xValues, y_pred  = predictSecond(xValues,yValues,classifier)
+ 
+    for  i  in range(0,len(y_pred)):
+        if( y_pred[i] == 1):
+            s = set()
+            for word in vectorizer.inverse_transform(xValues[i]):
+                for w in word:
+                    words = w.split()
+                    for aWord in words:
+                        if aWord not in stopWords:
+                            s.add(aWord.encode("utf-8"))
+            wordList.extend(list(s))
+   
+    
+    #print wordList
+    
+    text = " " .join(wordList)
+    #print text
+    
+    wordcloud = WordCloud(max_font_size=40, width=800, height=400,max_words=500).generate(text)
+    plt.figure()
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.show()
+    
+def rankLexicon():
+    
+    filterList = [r'\\x','https']
+    vectorizer = joblib.load('vectorizer_2.pkl')    
+    #classifier = joblib.load('classifierB.pkl')
+    featureList = []
+    for i in vectorizer.get_feature_names(): 
+        for item in filterList:
+            if(item in i.encode("utf-8") ):
+                break;
+        featureList.append(i.encode("utf-8"))
+    print featureList
+
+def topVectors():
+    classifier = joblib.load('classifierB.pkl')
+    print classifier
+
+
+
+
+
+def main():
+    #A = trainClassifierA()
+    #B = trainClassifierB()
+    
+    #generateWordCloud()
+    
+    #rankLexicon()
+    topVectors()
     
 if __name__ == "__main__":
 	main() 
