@@ -1,13 +1,14 @@
 import json
 import codecs
+import sys
 
 def main ():
     #tweets_file = open("1year_filtered.json")
     #flagged_users_file = open("Flagged_Oxycontin_Users.txt")
     #flagged_users_file = open("Oxycontin_Yes_Histogram.txt")
-    flagged_users_file = open("Hand_Flagged_Users.txt")
+    flagged_users_file = open("./TextFiles/Hand_Flagged_Users.txt",'r')
 
-    triangle_users_file = open("Oxycontin_User_Triangle_Thirds.txt")
+    triangle_users_file = open("./TextFiles/Oxycontin_User_Triangle_Thirds.txt",'r')
 
     #oxy_tweets = set()
     flagged_users = set()
@@ -19,7 +20,6 @@ def main ():
     next(iterargs)
     for x in iterargs:
         
-        print("got here")
         tweets_file = open(x)
     
         line = flagged_users_file.readline()
@@ -47,12 +47,13 @@ def main ():
         found_users = set()
         found_tris = set()
 
-        file = open("Flagged_Users_Tweets.txt","w")
-        tris = open("Triangle_Users_Tweets.txt",'w')
+        file = open("./TextFiles/Flagged_Users_Tweets.txt","w")
+        tris = open("./TextFiles/Triangle_Users_Tweets.txt",'w')
         line = tweets_file.readline()
+        
         while line != "":
             try:
-                j = json.loads(line)
+                j = json.loads(line.lower())
                 #if j["id"] not in oxy_tweets:
                     #print j["user"]
                 if int(j["user"]["id_str"]) in flagged_users:
@@ -82,7 +83,9 @@ def main ():
                 pass
                 file.write("\n")
                 tris.write("\n")
-        line = tweets_file.readline()	
+                tweets_file.close()
+ 
+            line = tweets_file.readline()	
         tweets_file.close()
         file.close()
         tris.close()
